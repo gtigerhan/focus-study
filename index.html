@@ -9,6 +9,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ZenStudy">
+    
+    <!-- Using a high-quality icon link -->
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3587/3587033.png">
     
     <title>ZenStudy Tracker</title>
@@ -18,9 +20,7 @@
         
         :root {
             --sat: env(safe-area-inset-top);
-            --sar: env(safe-area-inset-right);
             --sab: env(safe-area-inset-bottom);
-            --sal: env(safe-area-inset-left);
         }
 
         body {
@@ -28,37 +28,49 @@
             background-color: #000;
             color: #fff;
             -webkit-tap-highlight-color: transparent;
-            /* Handle iOS Notch and Home Indicator */
-            padding-top: var(--sat);
-            padding-bottom: var(--sab);
             margin: 0;
             height: 100vh;
+            width: 100vw;
             overflow: hidden;
+            position: fixed; /* Prevents bounce scroll on the body */
         }
 
         #root {
             height: 100%;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
+
+        /* Safe area handling for iPhone Notch/Home Indicator */
+        .safe-top { padding-top: var(--sat); }
+        .safe-bottom { padding-bottom: var(--sab); }
 
         ::-webkit-scrollbar {
             width: 0px;
         }
 
-        body, html {
-            overscroll-behavior-y: none; /* Prevents pull-to-refresh pull */
-            position: fixed; /* Prevents elastic scrolling on body */
-            width: 100%;
+        /* Prevent system gestures from interfering with app buttons */
+        button {
+            touch-action: manipulation;
         }
 
-        /* Prevent text selection unless intended */
+        /* Smooth transitions for modals */
+        .modal-enter {
+            animation: slideUp 0.3s ease-out forwards;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
         * {
             user-select: none;
             -webkit-user-select: none;
         }
 
-        input, textarea, [contenteditable] {
+        input, textarea {
             user-select: text;
             -webkit-user-select: text;
         }

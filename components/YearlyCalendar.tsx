@@ -9,7 +9,8 @@ interface YearlyCalendarProps {
 }
 
 const YearlyCalendar: React.FC<YearlyCalendarProps> = ({ logs, onDayClick }) => {
-  const [viewYear, setViewYear] = useState(2026);
+  // Use current year instead of 2026
+  const [viewYear, setViewYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
 
   const getDayTotal = (dateStr: string) => {
@@ -47,7 +48,6 @@ const YearlyCalendar: React.FC<YearlyCalendarProps> = ({ logs, onDayClick }) => 
       const total = getDayTotal(dateStr);
       
       if (size === 'small') {
-        // Simple indicator square in the yearly view (not clickable)
         days.push(
           <div
             key={dateStr}
@@ -55,7 +55,6 @@ const YearlyCalendar: React.FC<YearlyCalendarProps> = ({ logs, onDayClick }) => 
           />
         );
       } else {
-        // Larger clickable target in the monthly detail view
         days.push(
           <button
             key={dateStr}
@@ -109,9 +108,8 @@ const YearlyCalendar: React.FC<YearlyCalendarProps> = ({ logs, onDayClick }) => 
     <div className="animate-in fade-in slide-in-from-right-4 duration-300">
       <div className="flex items-center justify-between mb-8">
         <button 
-          onClick={() => setViewYear(v => Math.max(2026, v - 1))} 
-          className={`p-2 transition-transform active:scale-90 ${viewYear <= 2026 ? 'text-zinc-800' : 'text-zinc-500'}`}
-          disabled={viewYear <= 2026}
+          onClick={() => setViewYear(v => v - 1)} 
+          className="p-2 text-zinc-500 active:scale-90 transition-transform"
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
@@ -156,7 +154,6 @@ const YearlyCalendar: React.FC<YearlyCalendarProps> = ({ logs, onDayClick }) => 
         </div>
         <span>More</span>
       </div>
-      <p className="text-center text-zinc-700 text-[8px] uppercase tracking-widest mt-6">Tap a month to zoom in</p>
     </div>
   );
 };
