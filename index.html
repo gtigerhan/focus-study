@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- iOS PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ZenStudy">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3587/3587033.png">
+    
+    <title>ZenStudy Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+        
+        :root {
+            --sat: env(safe-area-inset-top);
+            --sar: env(safe-area-inset-right);
+            --sab: env(safe-area-inset-bottom);
+            --sal: env(safe-area-inset-left);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000;
+            color: #fff;
+            -webkit-tap-highlight-color: transparent;
+            /* Handle iOS Notch and Home Indicator */
+            padding-top: var(--sat);
+            padding-bottom: var(--sab);
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #root {
+            height: 100%;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        ::-webkit-scrollbar {
+            width: 0px;
+        }
+
+        body, html {
+            overscroll-behavior-y: none; /* Prevents pull-to-refresh pull */
+            position: fixed; /* Prevents elastic scrolling on body */
+            width: 100%;
+        }
+
+        /* Prevent text selection unless intended */
+        * {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        input, textarea, [contenteditable] {
+            user-select: text;
+            -webkit-user-select: text;
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+  }
+}
+</script>
+</head>
+<body>
+    <div id="root"></div>
+</body>
+</html>
