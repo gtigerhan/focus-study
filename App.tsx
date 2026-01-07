@@ -1,12 +1,11 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { Subject, StudySession, DayLog } from './types';
-import { getTodayKey, formatTime } from './utils/formatters';
-import Timer from './components/Timer';
-import SubjectCard from './components/SubjectCard';
-import StudyCalendar from './components/StudyCalendar';
-import YearlyCalendar from './components/YearlyCalendar';
-import DayDetail from './components/DayDetail';
+import { Subject, StudySession, DayLog } from './types.js';
+import { getTodayKey, formatTime } from './utils/formatters.js';
+import Timer from './components/Timer.js';
+import SubjectCard from './components/SubjectCard.js';
+import StudyCalendar from './components/StudyCalendar.js';
+import YearlyCalendar from './components/YearlyCalendar.js';
+import DayDetail from './components/DayDetail.js';
 
 const COLORS = ['#FF5F5F', '#5FFF95', '#5F9FFF', '#D45FFF', '#FFD45F', '#5FFFFF', '#FF9F5F', '#FFFFFF'];
 
@@ -34,7 +33,6 @@ const App: React.FC = () => {
   const [selectedDateDetail, setSelectedDateDetail] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Persistence logic for PWA
   useEffect(() => {
     if (navigator.storage && navigator.storage.persist) {
       navigator.storage.persist();
@@ -78,13 +76,13 @@ const App: React.FC = () => {
       try {
         const json = JSON.parse(e.target?.result as string);
         if (json.subjects && json.logs) {
-          if (confirm("Found " + json.logs.length + " days of logs. Restore now?")) {
+          if (confirm("Restore " + json.logs.length + " days of data? This will overwrite current data.")) {
             setSubjects(json.subjects);
             setLogs(json.logs);
             setShowDatabase(false);
           }
         }
-      } catch (err) { alert("Error: This doesn't look like a valid ZenStudy file."); }
+      } catch (err) { alert("Invalid backup file."); }
     };
     reader.readAsText(file);
     if (fileInputRef.current) fileInputRef.current.value = '';
@@ -124,22 +122,21 @@ const App: React.FC = () => {
     <div className="h-full flex flex-col font-light bg-black">
       <input type="file" ref={fileInputRef} className="hidden" accept=".json" onChange={importData} />
 
-      <main className="flex-1 overflow-y-auto px-6 pt-12 pb-32 safe-top">
+      <main className="flex-1 overflow-y-auto px-6 pt-12 pb-48 safe-top">
         {activeTab === 'focus' ? (
           <div className="animate-in fade-in slide-in-from-left-4 duration-500">
             <header className="mb-8 flex justify-between items-start">
               <div>
                 <h1 className="text-4xl font-semibold mb-1 tracking-tighter">Focus</h1>
-                <p className="text-zinc-500 text-sm font-medium">Seoul · <span className="text-white tabular-nums">{formatTime(getTodayTime())}</span></p>
+                <p className="text-zinc-500 text-sm font-medium">Daily Goal · <span className="text-white tabular-nums">{formatTime(getTodayTime())}</span></p>
               </div>
               <button 
                 onClick={() => setShowDatabase(true)} 
                 className="p-3 bg-zinc-900/50 rounded-2xl text-zinc-400 active:scale-90 transition-transform relative"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0v3.75" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75" />
                 </svg>
-                {lastBackup === 'Never' && <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-4 border-black animate-pulse" />}
               </button>
             </header>
 
@@ -171,15 +168,8 @@ const App: React.FC = () => {
                   onDelete={(id) => setSubjects(subjects.map(x => x.id === id ? {...x, archived: true} : x))}
                 />
               ))}
-              {activeSubjects.length === 0 && (
-                <div 
-                   onClick={() => setIsAddingSubject(true)}
-                   className="py-16 text-center text-zinc-800 border-2 border-dashed border-zinc-900 rounded-[2.5rem] active:bg-zinc-900/20 transition-colors"
-                >
-                  <p className="text-sm font-medium mb-1">Begin Your Journey</p>
-                  <p className="text-[10px] uppercase tracking-widest text-zinc-600">Tap to add a subject</p>
-                </div>
-              )}
+              {/* Spacer to ensure scrolling past the navigation bar */}
+              <div className="h-20" />
             </div>
           </div>
         ) : (
@@ -190,66 +180,14 @@ const App: React.FC = () => {
             ) : (
               <YearlyCalendar logs={logs} onDayClick={setSelectedDateDetail} />
             )}
+            <div className="h-24" />
           </div>
         )}
       </main>
 
-      {/* Memory Manager Modal */}
-      {showDatabase && (
-        <div className="fixed inset-0 bg-black/98 backdrop-blur-3xl z-50 flex flex-col p-10 animate-in fade-in duration-300">
-          <header className="flex justify-between items-center mb-16 safe-top">
-            <h3 className="text-2xl font-bold tracking-tight">Memory Protection</h3>
-            <button onClick={() => setShowDatabase(false)} className="text-zinc-500 font-medium p-2 active:scale-90">Close</button>
-          </header>
-          
-          <div className="space-y-12 max-w-sm mx-auto w-full flex-1">
-            <div className="space-y-4">
-              <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-600">Status</h4>
-              <div className="bg-zinc-900/50 p-6 rounded-3xl border border-white/5">
-                <p className="text-xs text-zinc-400 leading-relaxed italic mb-4">
-                  "Your study logs are stored inside this iPhone's Safari memory. If you delete Safari history or lose your phone, this data will vanish."
-                </p>
-                <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest">
-                  <span className="text-zinc-600">Sync:</span>
-                  <span className="text-white">Local Only</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-600">Secure to iCloud</h4>
-              <button 
-                onClick={exportData} 
-                className="w-full bg-white text-black py-5 rounded-[2rem] font-bold active:scale-95 transition-transform flex items-center justify-center gap-3"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                </svg>
-                Download Backup
-              </button>
-              <p className="text-[10px] text-zinc-700 text-center font-bold">Last Export: {lastBackup}</p>
-            </div>
-
-            <div className="space-y-4 pt-10 border-t border-white/5">
-              <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-600">Recovery</h4>
-              <button 
-                onClick={() => fileInputRef.current?.click()} 
-                className="w-full bg-zinc-900/50 text-white py-5 rounded-[2rem] font-bold border border-white/10 active:scale-95 transition-transform"
-              >
-                Restore from File
-              </button>
-            </div>
-          </div>
-          
-          <div className="text-center pb-8 safe-bottom">
-            <p className="text-[9px] text-zinc-800 uppercase tracking-[0.3em] font-black">ZenStudy Static Engine v1.1</p>
-          </div>
-        </div>
-      )}
-
       {/* Navigation */}
       {!activeSubject && (
-        <nav className="fixed bottom-0 left-0 right-0 bg-black/70 backdrop-blur-2xl border-t border-white/5 flex justify-around items-center px-10 pb-12 pt-4 z-40 safe-bottom">
+        <nav className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-2xl border-t border-white/5 flex justify-around items-center px-10 pb-12 pt-4 z-40 safe-bottom">
           <button 
             onClick={() => { setActiveTab('focus'); setSelectedDateDetail(null); }} 
             className={`flex flex-col items-center gap-1.5 transition-all ${activeTab === 'focus' ? 'text-white' : 'text-zinc-700'}`}
@@ -271,52 +209,67 @@ const App: React.FC = () => {
         </nav>
       )}
 
-      {/* Existing Modals from App.tsx */}
-      {showArchive && (
-        <div className="fixed inset-0 bg-black/98 z-50 p-10 flex flex-col animate-in slide-in-from-bottom duration-300 safe-top">
-          <header className="flex justify-between items-center mb-8">
-            <h3 className="text-xl font-bold tracking-tight">Archive</h3>
-            <button onClick={() => setShowArchive(false)} className="text-zinc-500 font-medium p-2 active:scale-90">Done</button>
+      {/* Database Modal */}
+      {showDatabase && (
+        <div className="fixed inset-0 bg-black z-50 flex flex-col p-10 safe-top safe-bottom">
+          <header className="flex justify-between items-center mb-12">
+            <h3 className="text-2xl font-bold">Settings</h3>
+            <button onClick={() => setShowDatabase(false)} className="text-zinc-500">Close</button>
           </header>
-          <div className="flex-1 overflow-y-auto space-y-4">
-            {subjects.filter(s => s.archived).length === 0 ? (
-              <div className="text-center py-20 text-zinc-800 italic text-sm">No archived subjects.</div>
-            ) : (
-              subjects.filter(s => s.archived).map(s => (
-                <div key={s.id} className="bg-zinc-900/50 p-6 rounded-[2rem] flex items-center justify-between border border-white/5">
-                  <span className="font-medium text-zinc-300">{s.name}</span>
-                  <div className="flex gap-2">
-                    <button onClick={() => setSubjects(subjects.map(x => x.id === s.id ? {...x, archived: false} : x))} className="text-[10px] bg-white text-black px-4 py-2.5 rounded-full font-bold">Restore</button>
-                    <button onClick={() => { if(confirm("Delete permanently?")) setSubjects(subjects.filter(x => x.id !== s.id)) }} className="text-[10px] bg-red-900/20 text-red-500 px-4 py-2.5 rounded-full font-bold">Delete</button>
-                  </div>
-                </div>
-              ))
-            )}
+          <div className="space-y-8">
+            <button onClick={exportData} className="w-full bg-white text-black py-4 rounded-2xl font-bold">Export Backup</button>
+            <button onClick={() => fileInputRef.current?.click()} className="w-full border border-white/20 py-4 rounded-2xl font-bold">Import Backup</button>
+            <p className="text-[10px] text-center text-zinc-600 uppercase tracking-widest">Last Backup: {lastBackup}</p>
           </div>
         </div>
       )}
 
+      {/* Archive Modal */}
+      {showArchive && (
+        <div className="fixed inset-0 bg-black z-50 p-10 flex flex-col safe-top">
+          <header className="flex justify-between items-center mb-8">
+            <h3 className="text-xl font-bold">Archive</h3>
+            <button onClick={() => setShowArchive(false)} className="text-zinc-500">Done</button>
+          </header>
+          <div className="flex-1 overflow-y-auto space-y-4 pb-20">
+            {subjects.filter(s => s.archived).map(s => (
+              <div key={s.id} className="bg-zinc-900 p-6 rounded-2xl flex items-center justify-between">
+                <span>{s.name}</span>
+                <div className="flex gap-2">
+                  <button onClick={() => setSubjects(subjects.map(x => x.id === s.id ? {...x, archived: false} : x))} className="bg-white text-black px-4 py-2 rounded-full text-xs font-bold">Restore</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Add Subject Modal */}
       {isAddingSubject && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-end">
-          <div className="w-full bg-zinc-900 rounded-t-[3.5rem] p-10 animate-in slide-in-from-bottom duration-300 border-t border-white/10 shadow-2xl safe-bottom">
-            <h3 className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-8">Subject Identity</h3>
+          <div className="w-full bg-zinc-900 rounded-t-[3rem] p-10 safe-bottom border-t border-white/5">
             <input 
               autoFocus 
               type="text" 
-              placeholder="e.g. Neuroscience" 
-              className="w-full bg-transparent text-3xl font-semibold mb-12 focus:outline-none placeholder:text-zinc-800"
+              placeholder="Subject Name" 
+              className="w-full bg-transparent text-3xl font-semibold mb-8 focus:outline-none placeholder:text-zinc-800"
               value={newSubjectName}
               onChange={(e) => setNewSubjectName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && addSubject()}
             />
-            <div className="flex flex-wrap gap-4 mb-14">
+            <div className="flex flex-wrap gap-3 mb-10">
               {COLORS.map(c => (
-                <button key={c} onClick={() => setSelectedColor(c)} className={`w-11 h-11 rounded-full transition-all ${selectedColor === c ? 'ring-2 ring-white ring-offset-4 ring-offset-black scale-110' : 'opacity-20'}`} style={{backgroundColor: c}} />
+                <button 
+                  key={c} 
+                  onClick={() => setSelectedColor(c)} 
+                  className={`w-10 h-10 rounded-full transition-all ${selectedColor === c ? 'ring-2 ring-white ring-offset-4 ring-offset-black scale-110' : 'opacity-30'}`} 
+                  style={{backgroundColor: c}} 
+                />
               ))}
             </div>
             <div className="flex gap-4">
-              <button onClick={() => setIsAddingSubject(false)} className="flex-1 py-5 text-zinc-500 font-bold active:text-white">Cancel</button>
-              <button onClick={addSubject} className="flex-1 bg-white text-black py-5 rounded-[2rem] font-bold active:scale-95 transition-transform">Create</button>
+              <button onClick={() => setIsAddingSubject(false)} className="flex-1 py-4 text-zinc-500 font-bold">Cancel</button>
+              <button onClick={addSubject} className="flex-1 bg-white text-black py-4 rounded-2xl font-bold">Create</button>
             </div>
           </div>
         </div>
